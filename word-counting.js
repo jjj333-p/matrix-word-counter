@@ -21,7 +21,15 @@ class WordCount {
 		//every stored room
 		for (const obj of roomJSONlist) {
 			//read and parse file
-			const roomFile = fs.readFileSync(`./db/count/${obj}`);
+			let roomFile;
+
+			try {
+				roomFile = fs.readFileSync(`./db/count/${obj}`);
+			} catch (e) {
+				console.log(`error reading file ${obj}, it may be a dir\n${e}`);
+				return;
+			}
+
 			const rm = JSON.parse(roomFile);
 
 			//get room id from the file name
