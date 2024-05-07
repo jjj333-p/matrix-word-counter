@@ -78,7 +78,7 @@ client.on("room.event", async (roomId, event) => {
 			return;
 		}
 
-		const users = Array.from(wordstats.keys);
+		const users = Array.from(wordstats.keys());
 
 		let msg = "";
 
