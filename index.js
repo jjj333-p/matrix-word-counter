@@ -19,6 +19,7 @@ const storage = new SimpleFsStorageProvider("bot.json");
 
 //login to client
 const client = new MatrixClient(homeserver, accessToken, storage);
+AutojoinRoomsMixin.setupOnClient(client);
 
 const counter = new WordCount();
 
