@@ -3,7 +3,7 @@ import {
 	AutojoinRoomsMixin,
 	MatrixClient,
 	SimpleFsStorageProvider,
-	RichRepliesPreprocessor
+	RichRepliesPreprocessor,
 } from "matrix-bot-sdk";
 import { readFileSync } from "node:fs";
 import { parse } from "yaml";
@@ -48,7 +48,7 @@ const filter = {
 		//we will manually fetch events anyways, this is just limiting how much backfill bot gets as to not
 		//respond to events far out of view
 		timeline: {
-			limit: 10000,
+			limit: 1000,
 		},
 	},
 };
@@ -87,11 +87,18 @@ client.on("room.event", async (roomId, event) => {
 			return;
 		}
 
+		let count = 0;
+
+		// biome-ignore lint/complexity/noForEach: <explanation>
+		wordstats.forEach((a) => {
+			count += a;
+		});
+
 		//get all users
 		const users = Array.from(wordstats.keys());
 
 		//generate human readable string
-		let msg = "";
+		let msg = `<b>Total</b>: ${count}<br><br>`;
 		for (const user of users) {
 			msg += `<b>${user}</b>: ${wordstats.get(user)}<br>`;
 		}

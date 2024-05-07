@@ -32,33 +32,34 @@ class WordCount {
 
 			const rm = JSON.parse(roomFile);
 
-			//get room id from the file name
+			// Get room ID from the file name
 			const roomID = obj.substring(0, obj.length - 5);
 
-			//create a submap for the room
+			// Create a submap for the room
 			const roomMap = new Map();
 			this.perRoom.set(roomID, roomMap);
 
-			//each word is a key to a set of stats per user
+			// Iterate through each word and its stats
 			const wordsSaved = Object.keys(rm);
 			for (const word of wordsSaved) {
-				//get the set of stats for that word
 				const stats = rm[word];
 				const users = Object.keys(stats);
 
-				//create a map for each word to store each user
+				// Create a map for each word to store each user's stats
 				const wordMap = new Map();
-				wordMap.set(word, wordMap);
+				roomMap.set(word, wordMap);
 
-				//process each user
+				// Process each user's stats
 				for (const user of users) {
-					//remaining bit to parce should just be an int to plop in
 					const userUsage = stats[user];
 
-					//if not a number its invalid data
-					if (Number.isNaN(userUsage)) return;
-
-					wordMap.set(user, userUsage);
+					// Check if userUsage is a number
+					if (!Number.isNaN(userUsage)) {
+						wordMap.set(user, userUsage);
+					} else {
+						console.warn(`Invalid data for user '${user}' in word '${word}'.`);
+						// Handle invalid data differently if needed
+					}
 				}
 			}
 		}
