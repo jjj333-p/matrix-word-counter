@@ -13,6 +13,8 @@ class WordCount {
 
 		//map to store everything in
 		this.perRoom = new Map();
+        this.writePromise = new Map();
+
 
 		//every stored room
 		for (const obj of roomJSONlist) {
@@ -64,12 +66,31 @@ class WordCount {
 		stats.set(user, current + amount);
 
 		//prevent race conditions
-		if (this.writePromise) await this.writePromise;
+        const currentWritePromise = this.writePromise.get(room)
+		if (currentWritePromise) await currentWritePromise;
 
-		this.writePromise = this.write();
+		this.writePromise.set(room, this.write(room))
+
+        this.perRoom.
 	}
 
-	async write() {
-		this.perRoom.keys;
+	async write(room) {
+		
+        const statsMap = this.perRoom.get(room)
+
+        const words = statsMap.keys()
+
+        const statsObjMap = new map;
+
+        for (const word of words) {
+
+            statsObjMap.set(word, Object.fromEntries(statsMap.get(word).entries()))
+
+        }
+
+        const statsObj = Object.fromEntries(statsObjMap.entries())
+
 	}
 }
+
+
