@@ -25,7 +25,7 @@ class WordCount {
 			const rm = JSON.parse(roomFile);
 
 			//get room id from the file name
-			const roomID = obj.substring(0, rm.length - 5);
+			const roomID = obj.substring(0, obj.length - 5);
 
 			//create a submap for the room
 			const roomMap = new Map();
