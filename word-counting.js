@@ -14,6 +14,7 @@ class WordCount {
 		//map to store everything in
 		this.perRoom = new Map();
         this.writePromise = new Map();
+        this.statsString = new Map();
 
 
 		//every stored room
@@ -74,13 +75,13 @@ class WordCount {
         this.perRoom.
 	}
 
-	async write(room) {
+	async writeInternal (room) {
 		
         const statsMap = this.perRoom.get(room)
 
-        const words = statsMap.keys()
+        const words = Array.from(statsMap.keys())
 
-        const statsObjMap = new map;
+        const statsObjMap = new Map();
 
         for (const word of words) {
 
@@ -89,6 +90,15 @@ class WordCount {
         }
 
         const statsObj = Object.fromEntries(statsObjMap.entries())
+
+        const statsString = JSON.stringify(statsObj, null, 2)
+
+        const oldStatsString = this.statsString.get(room)
+
+        //if its the same as what was already written no need to write
+        if (oldStatsString === statsString) return;
+
+        fs.writeFileSync(`./db/count/${room}.json`, statsString)
 
 	}
 }
