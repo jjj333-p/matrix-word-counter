@@ -51,4 +51,25 @@ class WordCount {
 			}
 		}
 	}
+
+	async addToUser(room, word, user, amount) {
+		const stats = this.perRoom.get(room).get(word);
+
+		let current = stats.get(user);
+
+		//if undefined set it to 0 just to make sure i dont footgun myself
+		if (!current) current = 0;
+
+		//set new value
+		stats.set(user, current + amount);
+
+		//prevent race conditions
+		if (this.writePromise) await this.writePromise;
+
+		this.writePromise = this.write();
+	}
+
+	async write() {
+		this.perRoom.keys;
+	}
 }
