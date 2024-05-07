@@ -3,14 +3,14 @@ import { Module } from "node:module";
 
 class WordCount {
 	constructor() {
-		const a = readdirSync("./db");
+		const a = fs.readdirSync("./db");
 
 		//make sure dir exists
 		if (!a.some((b) => b === "count")) {
 			//if not, make the folder for it
-			mkdirSync("./db/count");
+			fs.mkdirSync("./db/count");
 		}
-		const roomJSONlist = readdirsync("./db/count");
+		const roomJSONlist = fs.readdirSync("./db/count");
 
 		//map to store everything in
 		this.perRoom = new Map();
@@ -21,11 +21,11 @@ class WordCount {
 		//every stored room
 		for (const obj of roomJSONlist) {
 			//read and parse file
-			const roomFile = fs.readFileSync(`/db/count${obj}`);
+			const roomFile = fs.readFileSync(`./db/count/${obj}`);
 			const rm = JSON.parse(roomFile);
 
 			//get room id from the file name
-			const roomID = rm.substring(0, rm.length - 5);
+			const roomID = obj.substring(0, rm.length - 5);
 
 			//create a submap for the room
 			const roomMap = new Map();
@@ -57,7 +57,15 @@ class WordCount {
 	}
 
 	async addToUser(room, word, user, amount) {
-		const stats = this.perRoom.get(room).get(word);
+		if (!this.perRoom.has(room)) this.perRoom.set(room, new Map());
+
+		let stats = this.perRoom.get(room).get(word);
+
+		if (!stats) {
+			stats = new Map();
+
+			this.perRoom.get(room).set(word, stats);
+		}
 
 		let current = stats.get(user);
 

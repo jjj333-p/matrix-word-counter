@@ -6,7 +6,7 @@ import {
 } from "matrix-bot-sdk";
 import { readFileSync } from "node:fs";
 import { parse } from "yaml";
-import { WordCount } from "./word-counting";
+import { WordCount } from "./word-counting.js";
 
 //Parse YAML configuration file
 const loginFile = readFileSync("./db/login.yaml", "utf8");
@@ -14,12 +14,15 @@ const loginParsed = parse(loginFile);
 const homeserver = loginParsed["homeserver-url"];
 const accessToken = loginParsed["login-token"];
 
+//prefix
+const prefix = ".";
+
 //the bot sync something idk bro it was here in the example so i dont touch it ;-;
 const storage = new SimpleFsStorageProvider("bot.json");
 
 //login to client
 const client = new MatrixClient(homeserver, accessToken, storage);
-AutojoinRoomsMixin.setupOnClient(client);
+// AutojoinRoomsMixin.setupOnClient(client);
 
 const counter = new WordCount();
 
@@ -51,36 +54,58 @@ client.start(filter).then(async (filter) => {
 	console.log("Client started!");
 
 	//get mxid
-	mxid = await client.getUserId();
+	// mxid = await client.getUserId().catch(() => {});
 });
 
 //when the client recieves an event
 client.on("room.event", async (roomId, event) => {
 	//ignore events sent by self, unless its a banlist policy update
-	if (event.sender === mxid && !(event.type === "m.policy.rule.user")) {
+	if (event.sender === mxid) {
 		return;
 	}
 
 	//we just want raw text tbh
 	if (!event?.content?.body) return;
 
-	const words = event.content.body.split(/[^a-z0-9]/gi);
+	if (event.content.body.startsWith(`${prefix}count`)) {
+		const word = event.content.body.split(" ")[1];
 
-	const wordCounts = new Map();
+		const wordstats = counter.perRoom.get(roomId)?.get(word);
 
-	for (const word of words) {
-		// If the word already exists in wordCounts, increment its count
-		if (wordCounts.has(word)) {
-			wordCounts.set(word, wordCounts.get(word) + 1);
-		} else {
-			// If the word doesn't exist, initialize its count to 1
-			wordCounts.set(word, 1);
+		if (!wordstats) {
+			client.replyNotice(roomId, event, "❌ | That word has not been used");
+
+			return;
 		}
-	}
 
-	//add each count to the user
-	const countedWords = wordCounts.keys();
-	for (const word of countedWords) {
-		counter.addToUser(roomId, word, event.sender, wordCounts.get(word));
+		const users = Array.from(wordstats.keys);
+
+		let msg = "";
+
+		for (const user of users) {
+			msg += `<b>${user}</b>: ${wordstats.get(user)}<br>`;
+		}
+
+		client.replyHtmlNotice(roomId, event, msg);
+	} else {
+		const words = event.content.body.split(/[^a-z0-9]/gi);
+
+		const wordCounts = new Map();
+
+		for (const word of words) {
+			// If the word already exists in wordCounts, increment its count
+			if (wordCounts.has(word)) {
+				wordCounts.set(word, wordCounts.get(word) + 1);
+			} else {
+				// If the word doesn't exist, initialize its count to 1
+				wordCounts.set(word, 1);
+			}
+		}
+
+		//add each count to the user
+		const countedWords = wordCounts.keys();
+		for (const word of countedWords) {
+			counter.addToUser(roomId, word, event.sender, wordCounts.get(word));
+		}
 	}
 });
