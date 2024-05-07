@@ -3,6 +3,7 @@ import {
 	AutojoinRoomsMixin,
 	MatrixClient,
 	SimpleFsStorageProvider,
+	RichRepliesPreprocessor
 } from "matrix-bot-sdk";
 import { readFileSync } from "node:fs";
 import { parse } from "yaml";
@@ -23,6 +24,9 @@ const storage = new SimpleFsStorageProvider("bot.json");
 //login to client
 const client = new MatrixClient(homeserver, accessToken, storage);
 // AutojoinRoomsMixin.setupOnClient(client);
+
+//do not include replied message in message
+client.addPreprocessor(new RichRepliesPreprocessor(false));
 
 const counter = new WordCount();
 
