@@ -76,16 +76,18 @@ client.on("room.event", async (roomId, event) => {
 		//get stats map
 		const wordstats = counter.perRoom.get(roomId)?.get(word);
 
+		//if no stats
 		if (!wordstats) {
 			client.replyNotice(roomId, event, "❌ | That word has not been used");
 
 			return;
 		}
 
+		//get all users
 		const users = Array.from(wordstats.keys());
 
+		//generate human readable string
 		let msg = "";
-
 		for (const user of users) {
 			msg += `<b>${user}</b>: ${wordstats.get(user)}<br>`;
 		}
