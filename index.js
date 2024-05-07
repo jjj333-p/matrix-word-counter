@@ -67,9 +67,13 @@ client.on("room.event", async (roomId, event) => {
 	//we just want raw text tbh
 	if (!event?.content?.body) return;
 
-	if (event.content.body.startsWith(`${prefix}count`)) {
-		const word = event.content.body.split(" ")[1];
+	const body = event.content.body.toLowerCase();
 
+	if (body.startsWith(`${prefix}count`)) {
+		//get word param
+		const word = body.split(" ")[1];
+
+		//get stats map
 		const wordstats = counter.perRoom.get(roomId)?.get(word);
 
 		if (!wordstats) {
@@ -88,7 +92,7 @@ client.on("room.event", async (roomId, event) => {
 
 		client.replyHtmlNotice(roomId, event, msg);
 	} else {
-		const words = event.content.body.split(/[^a-z0-9]/gi);
+		const words = body.split(/[^a-z0-9]/gi);
 
 		const wordCounts = new Map();
 
