@@ -130,7 +130,11 @@ class WordCount {
 		//if its the same as what was already written no need to write
 		if (oldStatsString === statsString) return;
 
-		fs.writeFileSync(`./db/count/${room}.json`, statsString);
+		try {
+			fs.writeFileSync(`./db/count/${room}.json`, statsString);
+		} catch (e) {
+			console.log(`error writing file for ${room}\n${e}`);
+		}
 	}
 }
 
