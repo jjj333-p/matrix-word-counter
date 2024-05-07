@@ -16,9 +16,6 @@ const accessToken = loginParsed["login-token"];
 //the bot sync something idk bro it was here in the example so i dont touch it ;-;
 const storage = new SimpleFsStorageProvider("bot.json");
 
-const splitchars = fs.readFileSync("split-chars.txt ", "utf8");
-const wordBreakPattern = new RegExp(`[${splitchars}]`, "g");
-
 //login to client
 const client = new MatrixClient(homeserver, accessToken, storage);
 
@@ -63,5 +60,5 @@ client.on("room.event", async (roomId, event) => {
 	//we just want raw text tbh
 	if (!event?.content?.body) return;
 
-	const words = event.content.body.split(wordBreakPattern);
+	const words = event.content.body.split(/[^a-z0-9]/gi);
 });
