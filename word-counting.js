@@ -24,7 +24,8 @@ class WordCount {
 			const roomID = rm.substring(0, rm.length - 5);
 
 			//create a submap for the room
-			this.perRoom.set(roomID, new Map());
+			const roomMap = new Map();
+			this.perRoom.set(roomID, roomMap);
 
 			//each word is a key to a set of stats per user
 			const wordsSaved = Object.keys(rm);
@@ -33,7 +34,19 @@ class WordCount {
 				const stats = rm[word];
 				const users = Object.keys(stats);
 
+				//create a map for each word to store each user
+				const wordMap = new Map();
+				wordMap.set(word, wordMap);
+
+				//process each user
 				for (const user of users) {
+					//remaining bit to parce should just be an int to plop in
+					const userUsage = stats[user];
+
+					//if not a number its invalid data
+					if (Number.isNaN(userUsage)) return;
+
+					wordMap.set(user, userUsage);
 				}
 			}
 		}
