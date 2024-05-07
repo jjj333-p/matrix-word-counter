@@ -13,9 +13,9 @@ class WordCount {
 
 		//map to store everything in
 		this.perRoom = new Map();
-        this.writePromise = new Map();
-        this.statsString = new Map();
-
+		this.writePromise = new Map();
+		this.writeQueued = new Map();
+		this.statsString = new Map();
 
 		//every stored room
 		for (const obj of roomJSONlist) {
@@ -66,41 +66,53 @@ class WordCount {
 		//set new value
 		stats.set(user, current + amount);
 
-		//prevent race conditions
-        const currentWritePromise = this.writePromise.get(room)
-		if (currentWritePromise) await currentWritePromise;
-
-		this.writePromise.set(room, this.write(room))
-
-        this.perRoom.
+		this.queueWrite(room);
 	}
 
-	async writeInternal (room) {
-		
-        const statsMap = this.perRoom.get(room)
+	async queueWrite(room) {
+		//the data is being global, if theres a scheduled write queued already
+		//the data will be written already so we can just toss any other queued
+		//for that room
+		if (this.writeQueued.get(room)) return;
 
-        const words = Array.from(statsMap.keys())
+		//get the last write to await
+		const currentWritePromise = this.writePromise.get(room);
 
-        const statsObjMap = new Map();
+		if (currentWritePromise) {
+			//say we already have one right after this
+			this.writeQueued.set(room, true);
 
-        for (const word of words) {
+			//prevent racey writes
+			await currentWritePromise;
+		}
 
-            statsObjMap.set(word, Object.fromEntries(statsMap.get(word).entries()))
+		//save the promise to prevent racey writes
+		this.writePromise.set(room, this.write(room));
 
-        }
+		//no longer queueing
+		this.writeQueued.delete(room);
+	}
 
-        const statsObj = Object.fromEntries(statsObjMap.entries())
+	async write(room) {
+		const statsMap = this.perRoom.get(room);
 
-        const statsString = JSON.stringify(statsObj, null, 2)
+		const words = Array.from(statsMap.keys());
 
-        const oldStatsString = this.statsString.get(room)
+		const statsObjMap = new Map();
 
-        //if its the same as what was already written no need to write
-        if (oldStatsString === statsString) return;
+		for (const word of words) {
+			statsObjMap.set(word, Object.fromEntries(statsMap.get(word).entries()));
+		}
 
-        fs.writeFileSync(`./db/count/${room}.json`, statsString)
+		const statsObj = Object.fromEntries(statsObjMap.entries());
 
+		const statsString = JSON.stringify(statsObj, null, 2);
+
+		const oldStatsString = this.statsString.get(room);
+
+		//if its the same as what was already written no need to write
+		if (oldStatsString === statsString) return;
+
+		fs.writeFileSync(`./db/count/${room}.json`, statsString);
 	}
 }
-
-
