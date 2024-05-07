@@ -27,7 +27,7 @@ class WordCount {
 				roomFile = fs.readFileSync(`./db/count/${obj}`);
 			} catch (e) {
 				console.log(`error reading file ${obj}, it may be a dir\n${e}`);
-				return;
+				break;
 			}
 
 			const rm = JSON.parse(roomFile);
