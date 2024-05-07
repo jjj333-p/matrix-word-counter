@@ -6,6 +6,7 @@ import {
 } from "matrix-bot-sdk";
 import { readFileSync } from "node:fs";
 import { parse } from "yaml";
+import { WordCount } from "./word-counting";
 
 //Parse YAML configuration file
 const loginFile = readFileSync("./db/login.yaml", "utf8");
@@ -18,6 +19,8 @@ const storage = new SimpleFsStorageProvider("bot.json");
 
 //login to client
 const client = new MatrixClient(homeserver, accessToken, storage);
+
+const counter = new WordCount();
 
 //preallocate variables so they have a global scope
 let mxid;
@@ -61,4 +64,22 @@ client.on("room.event", async (roomId, event) => {
 	if (!event?.content?.body) return;
 
 	const words = event.content.body.split(/[^a-z0-9]/gi);
+
+	const wordCounts = new Map();
+
+	for (const word of words) {
+		// If the word already exists in wordCounts, increment its count
+		if (wordCounts.has(word)) {
+			wordCounts.set(word, wordCounts.get(word) + 1);
+		} else {
+			// If the word doesn't exist, initialize its count to 1
+			wordCounts.set(word, 1);
+		}
+	}
+
+	//add each count to the user
+	const countedWords = wordCounts.keys();
+	for (const word of countedWords) {
+		counter.addToUser(roomId, word, event.sender, wordCounts.get(word));
+	}
 });

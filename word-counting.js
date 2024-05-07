@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { Module } from "node:module";
 
 class WordCount {
 	constructor() {
@@ -116,3 +117,5 @@ class WordCount {
 		fs.writeFileSync(`./db/count/${room}.json`, statsString);
 	}
 }
+
+export { WordCount };
