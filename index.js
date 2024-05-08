@@ -30,9 +30,6 @@ client.addPreprocessor(new RichRepliesPreprocessor(false));
 
 const counter = new WordCount();
 
-//preallocate variables so they have a global scope
-let mxid;
-
 const filter = {
 	//dont expect any presence from m.org, but in the case presence shows up its irrelevant to this bot
 	presence: { senders: [] },
@@ -56,15 +53,12 @@ const filter = {
 //Start Client
 client.start(filter).then(async (filter) => {
 	console.log("Client started!");
-
-	//get mxid
-	// mxid = await client.getUserId().catch(() => {});
 });
 
 //when the client recieves an event
 client.on("room.event", async (roomId, event) => {
 	//ignore events sent by self, unless its a banlist policy update
-	if (event.sender === mxid) {
+	if (event.sender === client.getUserId()) {
 		return;
 	}
 
