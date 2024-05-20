@@ -112,6 +112,19 @@ class WordCount {
 	}
 
 	async write(room) {
+		// Regular expression to match any ASCII control character (bytes 0-31)
+		// biome-ignore lint/suspicious/noControlCharactersInRegex:
+		const controlCharsPattern = /[\x00-\x1F]/;
+
+		//dangerous characters, we simply will not store data about this room
+		if (
+			room.includes("\\") ||
+			room.includes("/") ||
+			room.includes("\0") ||
+			controlCharsPattern.test(room)
+		)
+			return;
+
 		const statsMap = this.perRoom.get(room);
 
 		const words = Array.from(statsMap.keys());
