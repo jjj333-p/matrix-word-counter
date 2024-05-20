@@ -73,7 +73,13 @@ client.on("room.event", async (roomId, event) => {
 
 	const body = event.content.body.toLowerCase();
 
-	if (body.startsWith(`${prefix}count`)) {
+	if (body.startsWith(`${prefix}help`)) {
+		client.replyNotice(
+			roomId,
+			event,
+			"You can find usage information and source code available at https://github.com/jjj333-p/matrix-word-counter",
+		);
+	} else if (body.startsWith(`${prefix}count`)) {
 		//get word param
 		const word = body.split(" ")[1];
 

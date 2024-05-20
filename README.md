@@ -12,7 +12,8 @@ This bot is very simple, there is one command and for the most part it just sits
 - The counts are on a per room basis, so you can see just how degenerate your room is!
 - Any word fitting the regex `/[^a-z0-9]/gi` will be counted
 - Run `.count <word>` to count how many times a word has been said in this room
-- Do note, this bot does not support encryption.
+- Run `.help` to get back to this github repo
+- Do note, this bot does not support encryption
 
 # Hosting
 
