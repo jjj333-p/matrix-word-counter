@@ -64,4 +64,27 @@ This bot is very simple, there is one command and for the most part it just sits
 
 - (Optional) Add to systemd services
 
-    - 
+    - Edit the following example to how you invoke the bot on your system, and add it to `/etc/systemd/system/matrix-word-counter.service`
+
+        ```
+        [Unit]
+        Description=matrix bot that counts times a word is used
+
+        [Service]
+        RestartSec=2s
+        Type=simple
+        User=joseph
+        WorkingDirectory=/home/joseph/matrix-word-counter/
+        ExecStart=/usr/bin/snap run node /home/joseph/matrix-word-counter/index.js
+        Restart=always
+
+        [Install]
+        WantedBy=multi-user.target
+        ```
+
+    - enable and start the bot on startup with
+
+        ```
+        sudo systemctl daemon-reload
+        sudo systemctl enable --now matrix-word-counter
+        ```
