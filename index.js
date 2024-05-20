@@ -23,7 +23,7 @@ const storage = new SimpleFsStorageProvider("bot.json");
 
 //login to client
 const client = new MatrixClient(homeserver, accessToken, storage);
-// AutojoinRoomsMixin.setupOnClient(client);
+AutojoinRoomsMixin.setupOnClient(client);
 
 //do not include replied message in message
 client.addPreprocessor(new RichRepliesPreprocessor(false));
@@ -105,7 +105,8 @@ client.on("room.event", async (roomId, event) => {
 
 		client.replyHtmlNotice(roomId, event, msg);
 	} else {
-		const words = body.split(/[^a-z0-9]/gi);
+		//split on regex and and filter out empty words
+		const words = body.split(/[^a-z0-9]/gi).filter((w) => w);
 
 		const wordCounts = new Map();
 
